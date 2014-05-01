@@ -96,18 +96,22 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
         data: "=tdData",
         tdXattribute: "=",
         tdYattribute: "=",
+        tdIdAttribute: "=",
         tdFilter: "=",
         tdSqrScaleX: "= tdSqrScaleX",
         tdTooltipMessage: "=",
         highlight: "=tdHighlight",
 
         tdWidth: "=?",
+        tdTrendline : "=?",
 
         // Bubble size
         maxSize : "=?tdMaxSize",
         minSize : "=?tdMinSize",
         sizeAttribute: "=?tdSizeAttribute",
-        colorAttribute: "=?tdColorAttribute"
+        colorAttribute: "=?tdColorAttribute",
+
+        tdSelected: "="
       },
       
       link: function (scope, element, attrs) {
@@ -187,6 +191,8 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
 
         var circles = svgContainer.selectAll("circle");
 
+        scope.tdIdAttribute = scope.tdIdAttribute ? scope.tdIdAttribute : "id"
+
 
         var render = function(data) {
 
@@ -206,6 +212,7 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
             .size([width, height])
             .xAttribute(scope.tdXattribute)
             .yAttribute(scope.tdYattribute)
+            .sizeAttribute(scope.sizeAttribute)
             .useLog(scope.tdSqrScaleX)
             .sizeScale(sizeScale);
 
@@ -239,17 +246,20 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
               .attr("stroke", "black");
 
             circles = svgContainer.selectAll("circle")
-            .data(nodes, function(d) {return d.id;});
+            .data(nodes, function(d) {return d[scope.tdIdAttribute ? scope.tdIdAttribute : "id"];});
 
             circles.exit()
-            .remove();
+              .transition()
+              .attr("r",0)
+              .remove();
 
             circles.enter()
               .append("circle")
               .on("click", function(d) {
                 scope.$apply(function(){
-                  scope.highlight = d.id;
+                  scope.highlight = d[scope.tdIdAttribute];
                 });
+                scope.tdSelected = d;
               })              
               .on("mouseenter", function(d) {
                 dataPointTooltip.show(d);
@@ -300,25 +310,28 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
           //Redraw trendline to place it on top of datapoints
           trendLine.remove();
 
-          trendLine = svgContainer
-            .append("path")
-              .datum(regObject)
-              .attr("class", "trendLine")
-              .attr("stroke", "red")
-              .attr("stroke-width", 4)
-              .attr("fill", "none")
+          if (scope.tdTrendline) {
+            trendLine = svgContainer
+              .append("path")
+                .datum(regObject)
+                .attr("class", "trendLine")
+                .attr("stroke", "red")
+                .attr("stroke-width", 4)
+                .attr("fill", "none")
 
-              .attr("d", function(d) {
-                var trendlinePoints = _.map(d.points, function(d) {return [layout.xScale()(d[0]), layout.yScale()(d[1])];});
-                trendlinePoints = _.sortBy(trendlinePoints, function(d) {return d[0];});
-                return line(trendlinePoints);
-              })
-              .on("mouseenter", function(d) {
-                trendlineTooltip.show(d);
-              })
-              .on("mouseleave", function() {
-                trendlineTooltip.hide();
-              });
+                .attr("d", function(d) {
+                  var trendlinePoints = _.map(d.points, function(d) {return [layout.xScale()(d[0]), layout.yScale()(d[1])];});
+                  trendlinePoints = _.sortBy(trendlinePoints, function(d) {return d[0];});
+                  return line(trendlinePoints);
+                })
+                .on("mouseenter", function(d) {
+                  trendlineTooltip.show(d);
+                })
+                .on("mouseleave", function() {
+                  trendlineTooltip.hide();
+                });
+          }
+
 
 
 
@@ -395,7 +408,7 @@ tideElements.factory("tide.layout.xy", ["d3","_", function(d3,_) {
         _.each(data, function(d) {
           d.x = xScale(d[xAttribute]);
           d.y = yScale(d[yAttribute]);
-          d.r = sizeScale(d[yAttribute] ? d[yAttribute] : 1);
+          d.r = sizeScale(d[sizeAttribute] ? d[sizeAttribute] : 1);
         }); 
 
 
@@ -420,6 +433,13 @@ tideElements.factory("tide.layout.xy", ["d3","_", function(d3,_) {
         yAttribute = _;
         return layout;
       };
+
+      layout.sizeAttribute = function(_) {
+        if(!arguments.length) return sizeAttribute;
+        sizeAttribute = _;
+        return layout;
+      };
+
 
       // Gets or modifies xScale
       layout.xScale = function(_) {

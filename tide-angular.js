@@ -2,7 +2,7 @@
 "use strict";
 /* jshint undef: true, unused: true */
 /* global angular */
-var tideElements = angular.module("tideElements", ["ui.bootstrap"]);
+var tideElements = angular.module("tide-angular", []);
 
 
 tideElements.directive("myDirective", function () {

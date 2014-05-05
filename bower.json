@@ -1,12 +1,12 @@
 {
   "name": "tide-angular",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "homepage": "https://github.com/elaval/tide-angular",
   "authors": [
     "Ernesto Laval <ernesto.laval@gmail.com>"
   ],
   "description": "Module with utilities for data visualization by TIDE SA",
-  "main": "td-angular.js",
+  "main": "tide-angular.js",
   "moduleType": [
     "globals"
   ],

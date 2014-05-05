@@ -16,7 +16,7 @@ tideElements.directive("myDirective", function () {
 
 
 
-tideElements.directive("tdColorLegend",["_", "d3",function (_, d3) {
+tideElements.directive("tdColorLegend2",["_", "d3",function (_, d3) {
  return {
   restrict: "A",
       //transclude: false,
@@ -92,47 +92,52 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
       //transclude: false,
       //template: "<div style='background-color:red' ng-transclude></div>",
       scope: {
-        val: "=",
         data: "=tdData",
-        tdXattribute: "=",
-        tdYattribute: "=",
-        tdIdAttribute: "=",
-        tdFilter: "=",
-        tdSqrScaleX: "= tdSqrScaleX",
-        tdTooltipMessage: "=",
+        xAttribute: "=tdXattribute",
+        yAttribute: "=tdYattribute",
+        idAttribute: "=?tdIdAttribute",
+        sqrScaleX: "=?tdSqrScaleX",
+        tooltipMessage: "=?tdTooltipMessage",
         highlight: "=tdHighlight",
 
-        tdWidth: "=?",
-        tdTrendline : "=?",
+        width: "=?tdWidth",
+        trendline : "=?tdTrendline",
 
         // Bubble size
         maxSize : "=?tdMaxSize",
         minSize : "=?tdMinSize",
         sizeAttribute: "=?tdSizeAttribute",
-        colorAttribute: "=?tdColorAttribute",
 
-        tdSelected: "="
+        // Bubble color
+        colorAttribute: "=?tdColorAttribute",
+        colorLegend : "=?tdColorLegend",
+
+        selected: "=?tdSelected",
+
+        options : "=?tdOptions"
       },
       
       link: function (scope, element, attrs) {
-        var width = scope.tdWidth ? scope.tdWidth : 300;
-        var height = scope.tdWidth ? scope.tdWidth : 300;
+        var width = scope.width ? scope.width : 300;
+        var height = scope.width ? scope.width : 300;
         var margin = {};
-        margin.left = 50;
-        margin.right = 10;
-        margin.top = 10;
-        margin.bottom = 50;
+        margin.left = scope.options && scope.options.margin && scope.options.margin.left ? scope.options.margin.left : 50;
+        margin.right = 20;
+        margin.top = 20;
+        margin.bottom = 20;
 
-        scope.colorAttribute = "genero";
+
+        // Setup scope default values if not assigned
+        scope.idAttribute = scope.idAttribute ? scope.idAttribute : "id";
 
         // Define dataPoints tooltip generator
         var dataPointTooltip = tooltip();
-        if (scope.tdTooltipMessage) {
-          dataPointTooltip.message(scope.tdTooltipMessage);
+        if (scope.tooltipMessage) {
+          dataPointTooltip.message(scope.tooltipMessage);
         } else {
           dataPointTooltip.message(function(d) {
-            var msg = scope.tdXattribute + " : " + d[scope.tdXattribute];
-            msg += "<br>" + scope.tdYattribute +  " : " + d[scope.tdYattribute];
+            var msg = scope.xAttribute + " : " + d[scope.xAttribute];
+            msg += "<br>" + scope.yAttribute +  " : " + d[scope.yAttribute];
 
             return  msg;
           });
@@ -176,27 +181,25 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
         .attr("x", width )
         .attr("y", -6)
         .style("text-anchor", "end")
-        .text(scope.tdXattribute);
+        .text(scope.xAttribute);
 
         var svgYAxisText = svgYAxis
         .append("text")
         .attr("class", "label")
         .attr("transform", "rotate(-90)")
-        .attr("y", -30)
+        .attr("y", -margin.left)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
-        .text(scope.tdYattribute);
+        .text(scope.yAttribute);
 
         var trendLine = svgContainer.select(".trendline");
 
         var circles = svgContainer.selectAll("circle");
 
-        scope.tdIdAttribute = scope.tdIdAttribute ? scope.tdIdAttribute : "id"
-
 
         var render = function(data) {
 
-          if (data && data.length) {
+          if (data) {
             scope.maxSize = scope.maxSize ? scope.maxSize : 5;
             scope.minSize = scope.minSize ? scope.minSize : 1;
 
@@ -210,25 +213,52 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
 
             layout
             .size([width, height])
-            .xAttribute(scope.tdXattribute)
-            .yAttribute(scope.tdYattribute)
+            .xAttribute(scope.xAttribute)
+            .yAttribute(scope.yAttribute)
             .sizeAttribute(scope.sizeAttribute)
-            .useLog(scope.tdSqrScaleX)
+            .useLog(scope.sqrScaleX)
             .sizeScale(sizeScale);
 
 
             var nodes = layout.nodes(data);
 
+            //var xAxis = d3.svg.axis().scale(layout.xScale()).ticks(7).tickFormat(d3.format("d")).tickSubdivide(0);
+            //var yAxis = d3.svg.axis().scale(layout.yScale()).orient("left").ticks(7).tickFormat(d3.format("d")).tickSubdivide(0);
 
-            var xAxis = d3.svg.axis().scale(layout.xScale()).ticks(7).tickFormat(d3.format("d")).tickSubdivide(0);
-            var yAxis = d3.svg.axis().scale(layout.yScale()).orient("left").ticks(7).tickFormat(d3.format("d")).tickSubdivide(0);
+
+
+            var digitWidth = 25;
+            var xMaxDigits = Math.ceil(Math.log(Math.abs(layout.xScale().domain()[1]))/Math.log(10));
+            var yMaxDigits = Math.ceil(Math.log(Math.abs(layout.yScale().domain()[1]))/Math.log(10));
+            var xlabelLength = digitWidth*xMaxDigits;
+            var ylabelLength = digitWidth*yMaxDigits;
+
+            var xNumberOfTicks = (layout.xScale().range()[1]-layout.xScale().range()[0])/xlabelLength;
+            var yNumberOfTicks = (Math.abs(layout.yScale().range()[1]-layout.yScale().range()[0]))/ylabelLength;
+ 
+
+            var xDomainRange = Math.abs(layout.xScale().domain()[1]-layout.xScale().domain()[0]);
+            var yDomainRange = Math.abs(layout.yScale().domain()[1]-layout.yScale().domain()[0]);
+
+            var xFormat = xDomainRange/xNumberOfTicks > 1 ? d3.format("d") : d3.format(".1f");
+            var yFormat = yDomainRange/yNumberOfTicks > 1 ? d3.format("d") : d3.format(".1f");
+
+
+            var xAxis = d3.svg.axis().scale(layout.xScale()).ticks(xNumberOfTicks).tickFormat(xFormat).tickSubdivide(0);
+            var yAxis = d3.svg.axis().scale(layout.yScale()).orient("left").ticks(yNumberOfTicks).tickFormat(yFormat).tickSubdivide(0);
             var colorScale = d3.scale.category10();
 
             // Asign colors according to alphabetical order to avoid inconsistency
             if (scope.colorAttribute) {
-              var colorDimension = _.keys(_.groupBy(data, function(d) {return d[scope.colorAttribute]})).sort();
-              colorScale.domain(colorDimension);
+              var colorDomain = _.keys(_.groupBy(data, function(d) {return d[scope.colorAttribute]})).sort();
+              colorScale.domain(colorDomain);
             }
+
+            // Color legend data to be shared through the scope
+            scope.colorLegend = [];
+            _.each(colorScale.domain(), function(d) {
+              scope.colorLegend.push([d, colorScale(d)]);
+            })
 
 
             svgXAxis    
@@ -246,20 +276,39 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
               .attr("stroke", "black");
 
             circles = svgContainer.selectAll("circle")
-            .data(nodes, function(d) {return d[scope.tdIdAttribute ? scope.tdIdAttribute : "id"];});
+            .data(nodes, function(d) {return d[scope.idAttribute];});
 
             circles.exit()
               .transition()
               .attr("r",0)
+              .attr("cx",0)
+              .attr("cy", height)
               .remove();
 
             circles.enter()
               .append("circle")
+              .attr("cx", function(d) {
+                return 0;
+              })
+              .attr("cy", function(d) {
+                return height;
+              })
+              .attr("r", function(d) {
+                return 0
+              })
               .on("click", function(d) {
-                scope.$apply(function(){
-                  scope.highlight = d[scope.tdIdAttribute];
-                });
-                scope.tdSelected = d;
+                if ((!scope.selected) || ((scope.selected[scope.idAttribute]) && (d[scope.idAttribute] != scope.selected[scope.idAttribute]))) {
+                  // Select the node - save in the scope 
+                  scope.$apply(function(){
+                    scope.selected = d;
+                  });
+                } else {
+                  // Unselect the node 
+                  scope.$apply(function(){
+                    scope.selected = null;
+                  });
+                }
+
               })              
               .on("mouseenter", function(d) {
                 dataPointTooltip.show(d);
@@ -270,7 +319,7 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
               
 
             circles
-            .sort(function(a, b) {return a.id == scope.highlight? 1 : b.id == scope.highlight ? -1 : 0})
+            .sort(function(a, b) {return scope.selected && a[scope.idAttribute] == scope.selected[scope.idAttribute]? 1 : scope.selected && b[scope.idAttribute] == scope.selected[scope.idAttribute] ? -1 : 0})
             .transition()
             .attr("cx", function(d) {
               return d.x;
@@ -279,28 +328,22 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
               return d.y;
             })
             .attr("r", function(d) {
-              return d.id == scope.highlight ? 2*d.r : d.r
+              return  scope.selected && (d[scope.idAttribute] == scope.selected[scope.idAttribute]) ? 2*d.r : d.r
             })
             .attr("stroke-width", function(d) {
-              return (d.id == scope.highlight) ? 2 : 1;
+              return scope.selected && (d[scope.idAttribute] == scope.selected[scope.idAttribute])? 2 : 1;
             })
             .attr("fill", function(d) {
               return colorScale(d[scope.colorAttribute])
             })
-            .attr("stroke", function(d) { return d3.rgb(colorScale(d[scope.colorAttribute])).darker(2); });
-
- 
-
-            
+            .attr("stroke", function(d) { return d3.rgb(colorScale(d[scope.colorAttribute])).darker(2); });            
 
             svgXAxisText
-              .text(scope.tdXattribute);
-
+              .text(scope.xAttribute);
 
             // Trend Line - Linear Regression
-            var datapoints = _.map(nodes, function(d) {return [+d[scope.tdXattribute], +d[scope.tdYattribute]];});
+            var datapoints = _.map(nodes, function(d) {return [+d[scope.xAttribute], +d[scope.yAttribute]];});
             var regObject = regression(datapoints);
-
 
 
            var line = d3.svg.line()
@@ -310,7 +353,7 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
           //Redraw trendline to place it on top of datapoints
           trendLine.remove();
 
-          if (scope.tdTrendline) {
+          if (scope.trendline) {
             trendLine = svgContainer
               .append("path")
                 .datum(regObject)
@@ -340,28 +383,15 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
 
         };
 
-        scope.$watch("val", function (newVal, oldVal) {
-          // clear the elements inside of the directive
-          circles.attr("r", newVal);
-        });
-
-        scope.$watch("tdFilter", function (newVal, oldVal) {
-          var filteredData = _.filter(scope.data, function(d) {return d.nom_unidad_academ == newVal.unidad;});
-          render(filteredData);
-        });
-
-
-        scope.$watch("data", function (newVal, oldVal) {
-          render(newVal);
-
-
+        scope.$watch("data", function () {
+          render(scope.data);
         });      
 
-        scope.$watch("tdSqrScaleX", function () {
+        scope.$watch("sqrScaleX", function () {
           render(scope.data);
         });
 
-        scope.$watch("highlight", function () {
+        scope.$watch("selected", function () {
           render(scope.data);
         });
 

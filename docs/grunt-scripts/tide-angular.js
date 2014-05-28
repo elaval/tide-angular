@@ -2,18 +2,15 @@
 "use strict";
 /* jshint undef: true, unused: true */
 /* global angular */
+
+/**
+ * @ngdoc overview
+ * @name tide-angular
+ * @description
+ * Data visualization tools from TIDE SA
+ *
+ */
 var tideElements = angular.module("tide-angular", []);
-
-
-tideElements.directive("myDirective", function () {
- return {
-  restrict: "A",
-  transclude: true,
-  template: "<div style='background-color:red' ng-transclude></div>",
-};
-});
-
-
 
 
 tideElements.directive("tdColorLegend2",["_", "d3",function (_, d3) {
@@ -85,8 +82,38 @@ tideElements.directive("tdColorLegend2",["_", "d3",function (_, d3) {
 
 
 
-
-tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linearregression", "tide.utils.tooltip",function (_, d3, layout, regression, tooltip) {
+/**
+ * @ngdoc directive
+ * @name tide-angular.directive:tdXyChart
+ * @requires underscore._
+ * @requires d3service.d3
+ * @requires tideLayoutXY
+ * @requires linearRegression
+ * @requires toolTip
+ * @element div
+ * 
+ * @param {array} tdData Data array used for populating the chart
+ * @param {string} tdXattribute Name of the attribute used for the X values in data objects
+ * @param {string} tdYattribute Name of the attribute used for the Y values in data objects
+ * @param {string} tdIdAttribute Name of the attribute used for the ID of unique entities in teh data set
+ * @param {string} tdSizeAttribute Name of the attribute used for defining the size of the bubbles
+ * @param {string} tdColorAttribute Name of the attribute used to define the color categories in the chart
+ * @param {boolean=} tdSqrScaleX Indicates if shoudl display x axis using a sqr scale
+ * @param {function=} tdTooltipMessage Function that should return a text to be displayed in the tooltip, given a data element
+ * @param {int=} tdWidth Chart widht (and height)
+ * @param {boolean=} tdTrendline Wether a trendline is displayed in the graph (linear regression)
+ * @param {int=} tdMaxSize Maximum size of the bubbles (defaults to 5)
+ * @param {int=} tdMinSize Minimun size of the bubbles (defaults to 1)
+ * @param {array=} tdColorLegend Array that returns the color codes used in the legend each element is an array ["category", "color"]
+ * @param {object=} tdSelected Object with the data element of the selected point in the chart
+ * @param {object=} tdOptions Options for chart configuration (i.e. options.margin.left)
+ * @description
+ *
+ * Generates a scatered XY Chart
+ *
+ */
+angular.module("tide-angular")
+.directive("tdXyChart",["$compile","_", "d3","tideLayoutXY","linearRegression", "toolTip",function ($compile,_, d3, layout, regression, tooltip) {
  return {
   restrict: "A",
       //transclude: false,
@@ -142,6 +169,7 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
             return  msg;
           });
         }
+
 
         // Define trendLine tooltip generator
         var trendlineTooltip = tooltip();
@@ -295,7 +323,8 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
               })
               .attr("r", function(d) {
                 return 0
-              })
+              })              
+              .attr("opacity", 0.8)
               .on("click", function(d) {
                 if ((!scope.selected) || ((scope.selected[scope.idAttribute]) && (d[scope.idAttribute] != scope.selected[scope.idAttribute]))) {
                   // Select the node - save in the scope 
@@ -361,6 +390,7 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
                 .attr("stroke", "red")
                 .attr("stroke-width", 4)
                 .attr("fill", "none")
+                .attr("opacity", 0.8)
 
                 .attr("d", function(d) {
                   var trendlinePoints = _.map(d.points, function(d) {return [layout.xScale()(d[0]), layout.yScale()(d[1])];});
@@ -395,6 +425,10 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
           render(scope.data);
         });
 
+        scope.$watch("colorAttribute", function () {
+          render(scope.data);
+        });
+
 
       }
       
@@ -403,8 +437,17 @@ tideElements.directive("tdXyChart",["_", "d3","tide.layout.xy","tide.utils.linea
   }]);
 
 
-tideElements.factory("tide.layout.xy", ["d3","_", function(d3,_) {
-  var layout = {};
+/**
+* @ngdoc service
+* @name tide-angular.tideLayoutXY
+* @requires d3service.d3
+* @requires underscore._
+*
+* @description
+* Creates a layout (node array with position attributes) for building an XY bubble chart
+*
+*/
+tideElements.service ("tideLayoutXY", ["d3","_", function(d3,_) {
   var xAttribute = null;
   var yAttribute = null;
   var sizeAttribute = null;
@@ -414,103 +457,124 @@ tideElements.factory("tide.layout.xy", ["d3","_", function(d3,_) {
   var sizeScale = d3.scale.linear().domain([1,1]).range([2,2]);
   var useLog = false;
 
-      /**
-      * Calculates coordinates (x, dy, basey) for a group of area charts that can be stacked
-      * each area chart is associated to a category in the data objects
-      */
-      layout.nodes = function(data) {
+  /**
+  * Calculates coordinates (x, dy, basey) for a group of area charts that can be stacked
+  * each area chart is associated to a category in the data objects
+  */
+  /**
+  * @ngdoc function
+  * @name tide-angular.tideLayoutXY:nodes
+  * @methodOf tide-angular.tideLayoutXY
+  * @param {array} data Array with data objects 
+  * @returns {arra} Array with layout nodes
+  *
+  * @description
+  * Given an array of data objects, generates x & y coordinates and circle radious r for each of the nodes to be displayed in an XY chart. 
+  */
+  this.nodes = function(data) {
 
-        var width = size[0];
-        var height = size[1];
+    var width = size[0];
+    var height = size[1];
 
-        if (true) {
-          if (useLog) {
-            xScale = d3.scale.pow().exponent(0.5).domain(d3.extent(data, function(d) {return +d[xAttribute];})).range([0,width]);
-          } else {
-            xScale = d3.scale.linear().domain(d3.extent(data, function(d) {return +d[xAttribute];})).range([0,width]);
-          }
-        }
+    if (true) {
+      if (useLog) {
+        xScale = d3.scale.pow().exponent(0.5).domain(d3.extent(data, function(d) {return +d[xAttribute];})).range([0,width]);
+      } else {
+        xScale = d3.scale.linear().domain(d3.extent(data, function(d) {return +d[xAttribute];})).range([0,width]);
+      }
+    }
 
-        if (true) {
-          yScale = d3.scale.linear().domain(d3.extent(data, function(d) {return +d[yAttribute];})).range([height,0]);
-        }
+    if (true) {
+      yScale = d3.scale.linear().domain(d3.extent(data, function(d) {return +d[yAttribute];})).range([height,0]);
+    }
 
-        _.each(data, function(d) {
-          d.x = xScale(d[xAttribute]);
-          d.y = yScale(d[yAttribute]);
-          d.r = sizeScale(d[sizeAttribute] ? d[sizeAttribute] : 1);
-        }); 
+    _.each(data, function(d) {
+      d.x = xScale(d[xAttribute]);
+      d.y = yScale(d[yAttribute]);
+      d.r = sizeScale(d[sizeAttribute] ? d[sizeAttribute] : 1);
+    }); 
 
+    return data;
+  };
 
-        return data;
-      };
+  this.size = function(_) {
+    if (!arguments.length) return size;
+    size = _;
+    return this;
+  };
+  // Consulta o modifica el atributa utilizado para la medida en el histograma
+  this.xAttribute = function(_) {
+    if(!arguments.length) return xAttribute;
+    xAttribute = _;
+    return this;
+  };
 
-      layout.size = function(_) {
-        if (!arguments.length) return size;
-        size = _;
-        return layout;
-      };
-      // Consulta o modifica el atributa utilizado para la medida en el histograma
-      layout.xAttribute = function(_) {
-        if(!arguments.length) return xAttribute;
-        xAttribute = _;
-        return layout;
-      };
+  // Consulta o modifica el atributa utilizado para la categoría que agrupa distintos mantos
+  this.yAttribute = function(_) {
+    if(!arguments.length) return yAttribute;
+    yAttribute = _;
+    return this;
+  };
 
-      // Consulta o modifica el atributa utilizado para la categoría que agrupa distintos mantos
-      layout.yAttribute = function(_) {
-        if(!arguments.length) return yAttribute;
-        yAttribute = _;
-        return layout;
-      };
-
-      layout.sizeAttribute = function(_) {
-        if(!arguments.length) return sizeAttribute;
-        sizeAttribute = _;
-        return layout;
-      };
-
-
-      // Gets or modifies xScale
-      layout.xScale = function(_) {
-        if(!arguments.length) return xScale;
-        xScale = _;
-        return layout;
-      };
-
-      // Gets or modifies yScale
-      layout.yScale = function(_) {
-        if(!arguments.length) return yScale;
-        yScale = _;
-        return layout;
-      };
-
-      // Gets or modifies yScale
-      layout.sizeScale = function(_) {
-        if(!arguments.length) return sizeScale;
-        sizeScale = _;
-        return layout;
-      };
-
-      // Gets or modifies flag for use of logaritmith scale in x axis
-      layout.useLog = function(_) {
-        if(!arguments.length) return useLog;
-        useLog = _;
-        return layout;
-      };
-
-      // Gets or sets size (r) for each node
-      layout.rSize = function(_) {
-        if(!arguments.length) return rSize;
-        rSize = _;
-        return layout;
-      };
-
-      return layout;
-    }]);
+  this.sizeAttribute = function(_) {
+    if(!arguments.length) return sizeAttribute;
+    sizeAttribute = _;
+    return this;
+  };
 
 
-tideElements.factory("tide.utils.linearregression", ["_",function(_) {
+  // Gets or modifies xScale
+  this.xScale = function(_) {
+    if(!arguments.length) return xScale;
+    xScale = _;
+    return this;
+  };
+
+  // Gets or modifies yScale
+  this.yScale = function(_) {
+    if(!arguments.length) return yScale;
+    yScale = _;
+    return this;
+  };
+
+  // Gets or modifies yScale
+  this.sizeScale = function(_) {
+    if(!arguments.length) return sizeScale;
+    sizeScale = _;
+    return this;
+  };
+
+  // Gets or modifies flag for use of logaritmith scale in x axis
+  this.useLog = function(_) {
+    if(!arguments.length) return useLog;
+    useLog = _;
+    return this;
+  };
+
+  // Gets or sets size (r) for each node
+  this.rSize = function(_) {
+    if(!arguments.length) return rSize;
+    rSize = _;
+    return this;
+  };
+
+
+}]);
+
+
+
+
+/**
+* @ngdoc service
+* @name tide-angular.linearRegression
+* @requires underscore._
+*
+* @description
+* Calculates linear regression parameters for a set of datapoints [[x1,y1], [x2,y2], ... [xn,yn]]
+*
+* Returns object {slope: slope, intercept:intercept, r2: r2, points:points}
+*/
+tideElements.factory("linearRegression", ["_",function(_) {
   // Calculates linear regresion on a set of data points: [[x1,y1], [x2,y2], ... [xn,yn]]
   // Returns object {slope: slope, intercept:intercept, r2: r2}
 
@@ -550,11 +614,20 @@ tideElements.factory("tide.utils.linearregression", ["_",function(_) {
 }]);
 
 /*
-* tide.utils.tooltip
-* Generador de Tooltip
+* toolTip
+*/
+
+/**
+* @ngdoc service
+* @name tide-angular.toolTip
+* @requires d3service.d3
+*
+* @description
+* Generates a tooltip element that will be shown at the mouse position
+* It displays a message generated by message function, which can be overidden
 * 
 * Use:
-* example.directive("myDirective",["tide.utils.tooltip",function (tooltip) {
+* example.directive("myDirective",["toolTip",function (tooltip) {
 *   var myTooltip = tooltip();
 *   mytooTip.message(function(d) {
 *     var msg = "Name: " + d.name;
@@ -570,7 +643,7 @@ tideElements.factory("tide.utils.linearregression", ["_",function(_) {
 *       mytooTip.hide();
 *     });
 */
-tideElements.factory("tide.utils.tooltip", ["d3",function(d3) {
+tideElements.factory("toolTip", ["d3",function(d3) {
   return function() {
       var tooltip = {};
 
@@ -644,13 +717,44 @@ tideElements.factory("tide.utils.tooltip", ["d3",function(d3) {
 
 }]);
 
+/**
+ * @ngdoc overview
+ * @name underscore
+ * @description
+ * Wraps underscore as an angular module
+ * 
+ * The underscore library must be loaded and _ available as a global
+ *
+ */
 angular.module("underscore", [])
+  /**
+  * @ngdoc service
+  * @name underscore._
+  *
+  * @description
+  * underscore.js - _
+  */
   .factory("_", function() {
     return window._; // assumes underscore has already been loaded on the page
 });
 
-
+/**
+ * @ngdoc overview
+ * @name d3service
+ * @description
+ * Wraps d3js as an angular module
+ *
+ * d3 Library must be loaded and d3 available as a global
+ *
+ */
 angular.module("d3service", [])
+  /**
+  * @ngdoc service
+  * @name d3service.d3
+  *
+  * @description
+  * d3js - d3
+  */
   .factory("d3", [function(){
     var d3;
 
@@ -658,5 +762,71 @@ angular.module("d3service", [])
     return d3;
 }]);
  
+angular.module("tide-angular")
+.directive("tdTooltip",["d3",function (_, d3, layout, regression, tooltip) {
+ return {
+  restrict: "AE",
+      transclude: false,
+      replace:true,
+      template: "<div class='tooltipcontent' style='background:#ffff99;width:350px;position:absolute;z-index:9999;border-radius: 8px;opacity:0.9;'></div>",
+      scope: {
+        msg: "=tdMsg",
+        visible: "=tdVisible",
+        x: "=",
+        y: "="
+      },
+      
 
+      link: function (scope, element, attrs) {
+
+        var content = angular.element("<div>");
+        content.attr("stye", "padding:4px;");
+        element.append(content);
+
+        var tooltipPosition= function(mouseX, mouseY) {
+          var windowH = window.innerHeight;
+          var windowW = window.innerWidth;
+          var scrollH = window.pageYOffset;
+          var offsetV = window.document.body.offsetLeft;
+          var tooltipH = element[0].offsetHeight;
+          var tooltipW = element[0].offsetWidth;
+
+          var posX = mouseX > (windowW-tooltipW-offsetV) ? windowW-tooltipW-offsetV : mouseX+10;
+
+          var posY = 0;
+
+          if ((mouseY+tooltipH-scrollH) < windowH) {
+            posY = mouseY + 10;
+          } else {
+            posY = windowH-tooltipH+scrollH-10;
+            posX = posX<(windowW-tooltipW-offsetV) ? posX : mouseX-tooltipW -10;
+          }
+
+          return {x:posX, y:posY};
+        };
+
+        var show = function() {
+          var bodyLeft = document.body.getBoundingClientRect().left;
+
+          var pos = {x:scope.x-bodyLeft, y:scope.y};
+
+          var newpos = tooltipPosition(pos.x, pos.y);
+
+          element
+          .css("top", newpos.y+"px")   
+          .css("left", newpos.x+"px") 
+          .css("visibility", "visible") 
+          //.html(message(d));      
+        };
+
+        scope.$watch("msg", function (newVal) {
+          content.text(newVal);
+          show();
+        });      
+
+      }
+      
+      
+    };
+  }]);
 

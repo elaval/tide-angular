@@ -1,0 +1,56 @@
+<h1><code ng:non-bindable="">tdXyChart</code>
+<div><span class="hint">directive in module <code ng:non-bindable="">tide-angular</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Generates a scatered XY Chart</p>
+</div></div>
+<h2 id="dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/underscore._">_</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/d3service.d3">d3</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/tideLayoutXY">tideLayoutXY</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/linearRegression">linearRegression</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/toolTip">toolTip</a></code>
+</li>
+</ul>
+<h2 id="usage">Usage</h2>
+<div class="usage">as attribute<pre class="prettyprint linenums">&lt;div td-xy-chart
+     td-data="{array}"
+     td-xattribute="{string}"
+     td-yattribute="{string}"
+     td-id-attribute="{string}"
+     td-size-attribute="{string}"
+     td-color-attribute="{string}"
+     [td-sqr-scale-x="{boolean}"]
+     [td-tooltip-message="{function}"]
+     [td-width="{int}"]
+     [td-trendline="{boolean}"]
+     [td-max-size="{int}"]
+     [td-min-size="{int}"]
+     [td-color-legend="{array}"]
+     [td-selected="{object}"]
+     [td-options="{object}"]&gt;
+   ...
+&lt;/div&gt;</pre>
+<h4 id="usage_parameters">Parameters</h4><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>tdData</td><td><a href="" class="label type-hint type-hint-array">array</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Data array used for populating the chart</p>
+</div></td></tr><tr><td>tdXattribute</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Name of the attribute used for the X values in data objects</p>
+</div></td></tr><tr><td>tdYattribute</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Name of the attribute used for the Y values in data objects</p>
+</div></td></tr><tr><td>tdIdAttribute</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Name of the attribute used for the ID of unique entities in teh data set</p>
+</div></td></tr><tr><td>tdSizeAttribute</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Name of the attribute used for defining the size of the bubbles</p>
+</div></td></tr><tr><td>tdColorAttribute</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Name of the attribute used to define the color categories in the chart</p>
+</div></td></tr><tr><td>tdSqrScaleX <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Indicates if shoudl display x axis using a sqr scale</p>
+</div></td></tr><tr><td>tdTooltipMessage <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-function">function</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Function that should return a text to be displayed in the tooltip, given a data element</p>
+</div></td></tr><tr><td>tdWidth <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-int">int</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Chart widht (and height)</p>
+</div></td></tr><tr><td>tdTrendline <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-boolean">boolean</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Wether a trendline is displayed in the graph (linear regression)</p>
+</div></td></tr><tr><td>tdMaxSize <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-int">int</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Maximum size of the bubbles (defaults to 5)</p>
+</div></td></tr><tr><td>tdMinSize <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-int">int</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Minimun size of the bubbles (defaults to 1)</p>
+</div></td></tr><tr><td>tdColorLegend <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-array">array</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Array that returns the color codes used in the legend each element is an array [&quot;category&quot;, &quot;color&quot;]</p>
+</div></td></tr><tr><td>tdSelected <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Object with the data element of the selected point in the chart</p>
+</div></td></tr><tr><td>tdOptions <div><em>(optional)</em></div></td><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="tide-angular-directive-page tide-angular-directive-tdxychart-page"><p>Options for chart configuration (i.e. options.margin.left)</p>
+</div></td></tr></tbody></table></div>
+</div>

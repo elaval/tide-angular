@@ -5,7 +5,7 @@
   "authors": [
     "Ernesto Laval <ernesto.laval@gmail.com>"
   ],
-  "description": "Module with utilities for data visualization by TIDE SA",
+  "description": "Module with utilities for data visualization by TIDE SA ",
   "main": "tide-angular.js",
   "moduleType": [
     "globals"

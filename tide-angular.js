@@ -858,10 +858,10 @@ angular.module("tide-angular")
  * records are grouped in Columns (Ex. "Type of school") and Colors (Ex "zone") ... allowing to visualize the distribution of the population according to 2 main categories and within each unit of analisis (Ex School)
  *
  */
-angular.module("tide-angular")
-.directive("tdTreemap",["$compile","_", "d3","tideLayoutTreemap", "toolTip",function ($compile,_, d3, layout, tooltip) {
- return {
-      restrict: "A",
+ angular.module("tide-angular")
+ .directive("tdTreemap",["$compile","_", "d3","tideLayoutTreemap", "toolTip",function ($compile,_, d3, layout, tooltip) {
+   return {
+    restrict: "A",
       //transclude: false,
       //template: "<div style='background-color:red' ng-transclude></div>",
       
@@ -883,11 +883,11 @@ angular.module("tide-angular")
 
         colorLegend: "=?tdColorLegend"
         
- 
+
       },
       
       link: function (scope, element, attrs) {
-        
+
         var width = scope.width ? +scope.width : 800;
         var height = scope.height ? +scope.height : 400;
         var margin = {};
@@ -904,21 +904,29 @@ angular.module("tide-angular")
 
         
         layout
-           .size([width,height]) 
-           .sizeAttribute(scope.sizeAttribute)
-           .xAttribute(scope.xAttribute )
-           .colorAttribute(scope.colorAttribute)
-           
+        .size([width,height]) 
+        .sizeAttribute(scope.sizeAttribute)
+        .xAttribute(scope.xAttribute )
+        .colorAttribute(scope.colorAttribute)
+
 
         // Div principal
         var mainDiv = d3.select(element[0]).append("div")
-           .style("position", "relative")
-           .style("width", (width + margin.left + margin.right) + "px")
-           .style("height", (height + margin.top + margin.bottom) + "px")
-           .style("left", margin.left + "px")
-           .style("top", margin.top + "px");
-    
-            // Define dataPoints tooltip generator
+        .style("position", "relative")
+        .style("width", (width + margin.left + margin.right) + "px")
+        .style("height", (height + margin.top + margin.bottom) + "px")
+        .style("left", margin.left + "px")
+        .style("top", margin.top + "px");
+
+        var titlesDiv = mainDiv.append("div")
+            .style("position", "relative")
+            .style("width", width + "px")
+            .style("height", 40 + "px")
+            .style("left", 0 + "px")
+            .style("top", 0 + "px")
+
+
+        // Define dataPoints tooltip generator
         var dataTooltip = tooltip();
         if (scope.tooltipMessage) {
           dataTooltip.message(scope.tooltipMessage);
@@ -930,14 +938,33 @@ angular.module("tide-angular")
             return  msg;
           });
         }
-        
 
-        var render = function(data) {
-          if (data) {
-            
+        /**
+        * resize
+        */
+        var resize = function() {
 
-            var colorCategories = _.keys(_.groupBy(data, function(d) {return d[scope.colorAttribute]})).sort();
-            color.domain(colorCategories);
+          width = scope.width ? +scope.width : 800;
+          height = scope.height ? +scope.height : 400;
+
+          size = [width,height];  
+
+          layout
+          .size([width,height]) 
+
+          mainDiv
+            .style("width", (width + margin.left + margin.right) + "px")
+            .style("height", (height + margin.top + margin.bottom) + "px");
+
+          }
+
+
+          var render = function(data) {
+            if (data) {
+
+
+                var colorCategories = _.keys(_.groupBy(data, function(d) {return d[scope.colorAttribute]})).sort();
+                color.domain(colorCategories);
 
             // Color legend data to be shared through the scope
             scope.colorLegend = [];
@@ -947,9 +974,9 @@ angular.module("tide-angular")
 
 
             layout
-              .sizeAttribute(scope.sizeAttribute)
-              .xAttribute(scope.xAttribute)
-              .colorAttribute(scope.colorAttribute)
+            .sizeAttribute(scope.sizeAttribute)
+            .xAttribute(scope.xAttribute)
+            .colorAttribute(scope.colorAttribute)
 
             var nodes = layout.nodes(data);
 
@@ -959,39 +986,42 @@ angular.module("tide-angular")
 
             d3.selectAll(".etiqueta").remove();
 
-            var titulos = mainDiv.append("div").selectAll("div")
-                            .data(titles)
- 
-            titulos
-                .style("position", "relative")
-                .style("width", self.width + "px")
-                .style("height", 40 + "px")
-                .style("left", 0 + "px")
-                .style("top", 0 + "px")
-                .enter()
-                    .append("div")
-                    .style("float", "left")
-                    .style("position", "relative")
-                    .style("width", function(d) {return d.width+"px"})
-                    .append("div")
-                      .attr("class", "etiqueta")
-                      .html(function(d) {
-                        return d.title +"<br>"+formatNumber(d.size) +" "+ scope.unidad    
-                      });
+            titlesDiv
+            .style("width", width + "px")
+
+            var titles = titlesDiv.selectAll(".title")
+            .data(titles)
+
+            titles
+              .enter()
+              .append("div")
+              .attr("class","title")
+              .style("float", "left")
+              .style("position", "relative")
+              .style("width", function(d) {return d.width+"px"})
+              .append("div")
+              .attr("class", "etiqueta")
+
+
+            titles
+              .style("width", function(d) {return d.width+"px"})
+              .html(function(d) {
+                return d.title +"<br>"+formatNumber(d.size) +" "+ scope.unidad    
+              });
 
             var divNodes =  mainDiv.selectAll(".node")
-              .data(nodes, function(d) {return d[scope.keyAttribute]})
+            .data(nodes, function(d) {return d[scope.keyAttribute]})
 
             divNodes
-             .exit()
-               .transition()
-               .attr("opacity", 0)
-               .remove()
+            .exit()
+            .transition()
+            .attr("opacity", 0)
+            .remove()
 
             divNodes
-              .enter()
-                .append("div")
-                .attr("class", function(d) {
+            .enter()
+            .append("div")
+            .attr("class", function(d) {
                     // Si son carreras
                     if (d.depth == 1) {
                       return "node leaf";
@@ -999,43 +1029,40 @@ angular.module("tide-angular")
                       return "node notleaf"
                     }
                   })
-                .style("-webkit-box-sizing", "content-box")
-                .style("-moz-box-sizing", "content-box")
-                .style("box-sizing", "content-box")
-                .text(function(d) { return d.children ? null : d.key; })
-                .on("mouseenter", function(d) {
-                   if(d.depth !=0){
-                       dataTooltip.show(d)
-                    }
-                 })
-                .on("mouseleave", function(d) {
-                   dataTooltip.hide()
-                })
+            .style("-webkit-box-sizing", "content-box")
+            .style("-moz-box-sizing", "content-box")
+            .style("box-sizing", "content-box")
+            .text(function(d) { return d.children ? null : d.key; })
+            .on("mouseenter", function(d) {
+             if(d.depth !=0){
+               dataTooltip.show(d)
+             }
+           })
+            .on("mouseleave", function(d) {
+             dataTooltip.hide()
+           })
 
-            divNodes
-                .call(position)
-                .style("background", function(d) { 
-                     return (!d.values && d.depth==1) ? color(d[scope.colorAttribute]) : null;
-                   })
+          divNodes
+            .call(position)
+            .style("background", function(d) { 
+             return (!d.values && d.depth==1) ? color(d[scope.colorAttribute]) : null;
+           })
 
-
-
-            //mainDiv.text(titles)
           }
           
         }
 
-       var position = function() {
+        var position = function() {
           this.style("left", function(d) { 
-                return d.x + "px"; 
-              })
-              .style("top", function(d) { 
-                return d.y +40 + "px"; 
-              })
-              .style("width", function(d) { 
-                     return Math.max(0, d.dx - 1) + "px"; 
-              })
-              .style("height", function(d) { return Math.max(0, d.dy - 1) + "px"; });
+            return d.x + "px"; 
+          })
+          .style("top", function(d) { 
+            return d.y +40 + "px"; 
+          })
+          .style("width", function(d) { 
+           return Math.max(0, d.dx - 1) + "px"; 
+         })
+          .style("height", function(d) { return Math.max(0, d.dy - 1) + "px"; });
         }
 
 
@@ -1050,9 +1077,14 @@ angular.module("tide-angular")
           render(scope.data);
         });
 
-  }
+        scope.$watch("width", function () {
+          resize();
+          render(scope.data);
+        });
 
-  }
+      }
+
+    }
 
   }]);
 
@@ -1065,7 +1097,7 @@ angular.module("tide-angular")
 * @requires underscore._
 *
 * @description
-* Creates a layout (node array with position attributes) for building a TreeMap
+* Creates a layout (node array with position attributes) for building an Treemap Chart
 *
 */
 angular.module("tide-angular")
@@ -1076,17 +1108,6 @@ angular.module("tide-angular")
   var xAttribute    = "";
   var titles = [];
 
- /**
-  * @ngdoc function
-  * @name tide-angular.tideLayoutTreemap:nodes
-  * @methodOf tide-angular.tideLayoutTreemap
-  * @param {array} data array with data objects (Ex: [{id:1, type:public, zone:rural, students:127}]) 
-  *
-  * @returns {array} array with nodes data (inlcuding position params x,y,dx,dy)
-  *
-  * @description 
-  * Generates and array with nodes based on the inpit data, but including position information (x, y, dx, dy)
-  */
   this.nodes = function(data) {
     var dataGroups = createDataGroups(data);
 
@@ -1126,68 +1147,24 @@ angular.module("tide-angular")
     return nodes;
   };
 
- /**
-  * @ngdoc function
-  * @name tide-angular.tideLayoutTreemap:size
-  * @methodOf tide-angular.tideLayoutTreemap
-  * @param {array} Array with [width, height] information 
-  *
-  * @return {object} Layout instance or current value (if no argument given)
-  *
-  * @description 
-  * Sets or gets (if no argument given) the size of the Treemap [width, height]
-  */
   this.size = function(_) {
       if (!arguments.length) return size;
       size = _;
       return this;
   }
 
- /**
-  * @ngdoc function
-  * @name tide-angular.tideLayoutTreemap:sizeAttribute
-  * @methodOf tide-angular.tideLayoutTreemap
-  * @param {string} Name of the attrribute that defines the size of each component (Ex 'students') 
-  *
-  * @return {object} Layout instance or current value (if no argument given)
-  *
-  * @description 
-  * Sets or gets the attribute that defines the size of the units
-  */
   this.sizeAttribute = function(_) {
       if (!arguments.length) return sizeAttribute;
       sizeAttribute = _;
       return this;
   };
 
- /**
-  * @ngdoc function
-  * @name tide-angular.tideLayoutTreemap:colorAttribute
-  * @methodOf tide-angular.tideLayoutTreemap
-  * @param {string} Name of the attrribute that defines the category used for different colors in each column
-  *
-  * @return {object} Layout instance or current value (if no argument given)
-  *
-  * @description 
-  * Sets or gets the attribute that defines the category used for grouping by color
-  */
   this.colorAttribute = function(_) {
       if (!arguments.length) return colorAttribute;
       colorAttribute = _;
       return this;
   };
 
-/**
-  * @ngdoc function
-  * @name tide-angular.tideLayoutTreemap:xAttribute
-  * @methodOf tide-angular.tideLayoutTreemap
-  * @param {string} Name of the attrribute that defines the category used for different columns when displayin the units
-  *
-  * @return {object} Layout instance or current value (if no argument given)
-  *
-  * @description 
-  * Sets or gets the attribute that defines the category used for grouping by columns
-  */
   this.xAttribute = function(_) {
       if (!arguments.length) return xAttribute;
       xAttribute = _;
@@ -1195,16 +1172,6 @@ angular.module("tide-angular")
   };
 
 
-  /**
-  * @ngdoc function
-  * @name tide-angular.tideLayoutTreemap:xAttribute
-  * @methodOf tide-angular.tideLayoutTreemap
-  *
-  * @return {array} Array with column title info
-  *
-  * @description 
-  * Gets info from titles labels and their respective width & size (in number of units) [{title, width, size}]
-  */
   this.titles = function() {
     return titles;
   }
@@ -1308,9 +1275,6 @@ angular.module("tide-angular")
 
     return nodes;
   }
-
-
-
 
 }]);
 

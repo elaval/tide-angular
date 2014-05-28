@@ -1,0 +1,53 @@
+<h1><code ng:non-bindable="">tideLayoutTreemap</code>
+<div><span class="hint">service in module <code ng:non-bindable="">tide-angular</code>
+</span>
+</div>
+</h1>
+<div><h2 id="description">Description</h2>
+<div class="description"><div class="tide-angular-tidelayouttreemap-page"><p>Creates a layout (node array with position attributes) for building a TreeMap</p>
+</div></div>
+<h2 id="dependencies">Dependencies</h2>
+<ul class="dependencies"><li><code ng:non-bindable=""><a href="#/api/d3service.d3">d3</a></code>
+</li>
+<li><code ng:non-bindable=""><a href="#/api/underscore._">_</a></code>
+</li>
+</ul>
+<div class="member method"><h2 id="methods">Methods</h2>
+<ul class="methods"><li><h3 id="methods_colorattribute">colorAttribute(Name)</h3>
+<div class="colorattribute"><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-colorattribute-page"><p>Sets or gets the attribute that defines the category used for grouping by color</p>
+</div><h5 id="methods_colorattribute_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>Name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-colorattribute-page"><p>of the attrribute that defines the category used for different colors in each column</p>
+</div></td></tr></tbody></table><h5 id="methods_colorattribute_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-colorattribute-page"><p>Layout instance or current value (if no argument given)</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_nodes">nodes(data)</h3>
+<div class="nodes"><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-nodes-page"><p>Generates and array with nodes based on the inpit data, but including position information (x, y, dx, dy)</p>
+</div><h5 id="methods_nodes_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>data</td><td><a href="" class="label type-hint type-hint-array">array</a></td><td><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-nodes-page"><p>array with data objects (Ex: [{id:1, type:public, zone:rural, students:127}])</p>
+</div></td></tr></tbody></table><h5 id="methods_nodes_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-array">array</a></td><td><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-nodes-page"><p>array with nodes data (inlcuding position params x,y,dx,dy)</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_size">size(Array)</h3>
+<div class="size"><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-size-page"><p>Sets or gets (if no argument given) the size of the Treemap [width, height]</p>
+</div><h5 id="methods_size_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>Array</td><td><a href="" class="label type-hint type-hint-array">array</a></td><td><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-size-page"><p>with [width, height] information</p>
+</div></td></tr></tbody></table><h5 id="methods_size_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-size-page"><p>Layout instance or current value (if no argument given)</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_sizeattribute">sizeAttribute(Name)</h3>
+<div class="sizeattribute"><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-sizeattribute-page"><p>Sets or gets the attribute that defines the size of the units</p>
+</div><h5 id="methods_sizeattribute_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>Name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-sizeattribute-page"><p>of the attrribute that defines the size of each component (Ex &#39;students&#39;)</p>
+</div></td></tr></tbody></table><h5 id="methods_sizeattribute_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-sizeattribute-page"><p>Layout instance or current value (if no argument given)</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_xattribute">xAttribute(Name)</h3>
+<div class="xattribute"><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-xattribute-page"><p>Sets or gets the attribute that defines the category used for grouping by columns</p>
+</div><h5 id="methods_xattribute_parameters">Parameters</h5><table class="variables-matrix table table-bordered table-striped"><thead><tr><th>Param</th><th>Type</th><th>Details</th></tr></thead><tbody><tr><td>Name</td><td><a href="" class="label type-hint type-hint-string">string</a></td><td><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-xattribute-page"><p>of the attrribute that defines the category used for different columns when displayin the units</p>
+</div></td></tr></tbody></table><h5 id="methods_xattribute_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-object">object</a></td><td><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-xattribute-page"><p>Layout instance or current value (if no argument given)</p>
+</div></td></tr></table></div>
+</li>
+<li><h3 id="methods_xattribute">xAttribute()</h3>
+<div class="xattribute"><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-xattribute-page"><p>Gets info from titles labels and their respective width &amp; size (in number of units) [{title, width, size}]</p>
+</div><h5 id="methods_xattribute_returns">Returns</h5><table class="variables-matrix"><tr><td><a href="" class="label type-hint type-hint-array">array</a></td><td><div class="tide-angular-tidelayouttreemap-page tide-angular-tidelayouttreemap-xattribute-page"><p>Array with column title info</p>
+</div></td></tr></table></div>
+</li>
+</ul>
+</div>
+</div>

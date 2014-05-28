@@ -9,8 +9,6 @@
 // 'test/spec/**/*.js'
 
 module.exports = function (grunt) {
-  // NG Docs
-  grunt.loadNpmTasks('grunt-ngdocs');
 
   // Define the configuration for all the tasks
   grunt.initConfig({
@@ -25,13 +23,14 @@ module.exports = function (grunt) {
         './tide-angular.js'
         ]
     },
-
-
-
-
  
   });
 
+  // NG Docs
+  grunt.loadNpmTasks('grunt-ngdocs');
 
- 
+  // Default task(s).
+  grunt.registerTask('default', ['ngdocs']);
+
 };
+

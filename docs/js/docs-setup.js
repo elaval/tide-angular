@@ -32,6 +32,15 @@ NG_DOCS={
     },
     {
       "section": "api",
+      "id": "tide-angular.directive:tdTreemap",
+      "shortName": "tdTreemap",
+      "type": "directive",
+      "moduleName": "tide-angular",
+      "shortDescription": "Generates a Treemap with the total population distributed in &quot;rectangles&quot; acording to the size of each record",
+      "keywords": "$compile acording allowing analisis api array attribute categories category chart codes color colors columns d3 d3service data define defining directive displayed distributed distribution div element elements entities function generates grouped height label legend main number organizing populating population record records rectangles return returns school set size students tdcolorattribute tdcolorlegend tddata tdheight tdidattribute tdsizeattribute tdtooltipmessage tdunidad tdwidth tdxattribute teh text tide-angular tidelayouttreemap tooltip total treemap type underscore unique unit visualize widht zone"
+    },
+    {
+      "section": "api",
       "id": "tide-angular.directive:tdXyChart",
       "shortName": "tdXyChart",
       "type": "directive",
@@ -47,6 +56,15 @@ NG_DOCS={
       "moduleName": "tide-angular",
       "shortDescription": "Calculates linear regression parameters for a set of datapoints [[x1,y1], [x2,y2], ... [xn,yn]]",
       "keywords": "api calculates datapoints intercept linear linearregression object parameters points r2 regression returns service set slope tide-angular underscore y1 y2 yn"
+    },
+    {
+      "section": "api",
+      "id": "tide-angular.tideLayoutTreemap",
+      "shortName": "tide-angular.tideLayoutTreemap",
+      "type": "service",
+      "moduleName": "tide-angular",
+      "shortDescription": "Creates a layout (node array with position attributes) for building a TreeMap",
+      "keywords": "api argument array attribute attributes attrribute based building category color colors column columns component creates current d3 d3service data defines displayin dx dy function generates grouping height including info inpit instance labels layout nodes number objects params position respective service sets size students tide-angular tidelayouttreemap title titles treemap type underscore units width zone"
     },
     {
       "section": "api",

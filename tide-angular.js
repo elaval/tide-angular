@@ -141,7 +141,10 @@ angular.module("tide-angular")
 
         selected: "=?tdSelected",
 
-        options : "=?tdOptions"
+        options : "=?tdOptions",
+
+        // Indicates wether the chart is being drawn  
+        drawing : "=?tdDrawing"
       },
       
       link: function (scope, element, attrs) {
@@ -152,6 +155,9 @@ angular.module("tide-angular")
         margin.right = 20;
         margin.top = 20;
         margin.bottom = 20;
+
+        // Default: not drawing
+        scope.drawing = false;
 
 
         // Setup scope default values if not assigned
@@ -226,8 +232,9 @@ angular.module("tide-angular")
 
 
         var render = function(data) {
-
           if (data) {
+            if (data.length) {scope.drawing = true;}
+            
             scope.maxSize = scope.maxSize ? scope.maxSize : 5;
             scope.minSize = scope.minSize ? scope.minSize : 1;
 
@@ -276,17 +283,22 @@ angular.module("tide-angular")
             var yAxis = d3.svg.axis().scale(layout.yScale()).orient("left").ticks(yNumberOfTicks).tickFormat(yFormat).tickSubdivide(0);
             var colorScale = d3.scale.category10();
 
+            // Information sent back with color legen data [{key:keyName, color:colorCode, n:numberOfRecords}, ...]
+            scope.colorLegend = [];
+
             // Asign colors according to alphabetical order to avoid inconsistency
             if (scope.colorAttribute) {
-              var colorDomain = _.keys(_.groupBy(data, function(d) {return d[scope.colorAttribute]})).sort();
+              var groupsByColorAttribute = _.groupBy(data, function(d) {return d[scope.colorAttribute]});
+
+              var colorDomain = _.keys(groupsByColorAttribute).sort();
               colorScale.domain(colorDomain);
+
+              _.each(colorDomain, function(d) {
+                scope.colorLegend.push({key:d, color:colorScale(d), n:groupsByColorAttribute[d].length});
+              })
             }
 
-            // Color legend data to be shared through the scope
-            scope.colorLegend = [];
-            _.each(colorScale.domain(), function(d) {
-              scope.colorLegend.push([d, colorScale(d)]);
-            })
+
 
 
             svgXAxis    
@@ -345,11 +357,11 @@ angular.module("tide-angular")
               .on("mouseleave", function() {
                 dataPointTooltip.hide();
               });
-              
 
             circles
             .sort(function(a, b) {return scope.selected && a[scope.idAttribute] == scope.selected[scope.idAttribute]? 1 : scope.selected && b[scope.idAttribute] == scope.selected[scope.idAttribute] ? -1 : 0})
             .transition()
+            .duration(0)
             .attr("cx", function(d) {
               return d.x;
             })
@@ -365,7 +377,11 @@ angular.module("tide-angular")
             .attr("fill", function(d) {
               return colorScale(d[scope.colorAttribute])
             })
-            .attr("stroke", function(d) { return d3.rgb(colorScale(d[scope.colorAttribute])).darker(2); });            
+            .attr("stroke", function(d) { return d3.rgb(colorScale(d[scope.colorAttribute])).darker(2); })
+            .each("end", function() {
+              scope.drawing = false;
+              scope.$apply();
+            })       
 
             svgXAxisText
               .text(scope.xAttribute);
@@ -410,7 +426,7 @@ angular.module("tide-angular")
 
           }
 
-
+          
         };
 
         scope.$watch("data", function () {

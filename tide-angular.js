@@ -144,7 +144,9 @@ angular.module("tide-angular")
         options : "=?tdOptions",
 
         // Indicates wether the chart is being drawn  
-        drawing : "=?tdDrawing"
+        drawing : "=?tdDrawing",
+
+        excludeZeroX : "=?tdExcludeZeroX"
       },
       
       link: function (scope, element, attrs) {
@@ -233,6 +235,15 @@ angular.module("tide-angular")
 
         var render = function(data) {
           if (data) {
+            data = _.filter(data, function(d,i) {
+              var accepted = true;
+
+              if (scope.excludeZeroX) {
+                accepted = accepted && (+d[scope.xAttribute] > 0);
+              }
+              return accepted;
+            });
+
             if (data.length) {scope.drawing = true;}
             
             scope.maxSize = scope.maxSize ? scope.maxSize : 5;
@@ -444,6 +455,15 @@ angular.module("tide-angular")
         scope.$watch("colorAttribute", function () {
           render(scope.data);
         });
+
+        scope.$watch("excludeZeroX", function () {
+          render(scope.data);
+        });
+
+        scope.$watch("xAttribute", function () {
+          render(scope.data);
+        });
+
 
 
       }

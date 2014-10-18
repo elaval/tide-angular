@@ -397,6 +397,9 @@ angular.module("tide-angular")
             svgXAxisText
               .text(scope.xAttribute);
 
+            svgYAxisText
+              .text(scope.yAttribute);
+
             // Trend Line - Linear Regression
             var datapoints = _.map(nodes, function(d) {return [+d[scope.xAttribute], +d[scope.yAttribute]];});
             var regObject = regression(datapoints);
@@ -432,9 +435,6 @@ angular.module("tide-angular")
                 });
           }
 
-
-
-
           }
 
           
@@ -464,6 +464,9 @@ angular.module("tide-angular")
           render(scope.data);
         });
 
+        scope.$watch("yAttribute", function () {
+          render(scope.data);
+        });
 
 
       }
